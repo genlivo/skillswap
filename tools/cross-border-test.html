@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>跨境实时连接实测 | Cross-Border Realtime Test</title>
+<style>
+:root{
+  --bg:#0b0f14; --panel:#131a23; --panel2:#1a232e; --line:#243040;
+  --text:#e6edf3; --muted:#8fa0b3; --blue:#4a9eff; --green:#3fb950;
+  --amber:#d29922; --red:#f85149; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text); padding:34px 18px 90px;
+  font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:880px;margin:0 auto}
+h1{font-size:25px;margin:0 0 10px;font-weight:600;letter-spacing:-.3px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 28px;max-width:640px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 22px 20px;margin-bottom:18px}
+.card h2{font-size:16.5px;margin:0 0 6px;font-weight:600}
+.card .hint{color:var(--muted);font-size:13px;margin:0 0 18px;line-height:1.6}
+button{
+  font:inherit;font-size:14px;font-weight:500;cursor:pointer;border-radius:9px;
+  padding:10px 18px;border:1px solid var(--line);background:var(--panel2);color:var(--text);
+  transition:border-color .15s,background .15s;
+}
+button:hover:not(:disabled){border-color:#3a4d63;background:#202b38}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.primary{background:#1b3a5e;border-color:#2c5b8f;color:#cfe6ff}
+button.primary:hover:not(:disabled){background:#204570}
+button.ghost{background:transparent}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:10px;margin-top:18px}
+.metric{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+.metric .k{font-size:11.5px;color:var(--muted);margin-bottom:5px;letter-spacing:.2px}
+.metric .v{font-size:15px;font-weight:600;font-family:var(--mono);word-break:break-all}
+.verdict{border-radius:11px;padding:16px 18px;margin-top:18px;border:1px solid transparent}
+.verdict .t{font-size:15.5px;font-weight:600;margin-bottom:5px}
+.verdict .d{font-size:13.5px;color:var(--muted);line-height:1.65}
+.v-ok{background:rgba(63,185,80,.08);border-color:rgba(63,185,80,.35)}
+.v-ok .t{color:var(--green)}
+.v-warn{background:rgba(210,153,34,.08);border-color:rgba(210,153,34,.35)}
+.v-warn .t{color:var(--amber)}
+.v-err{background:rgba(248,81,73,.08);border-color:rgba(248,81,73,.35)}
+.v-err .t{color:var(--red)}
+.v-idle{background:var(--panel2);border-color:var(--line)}
+.v-idle .t{color:var(--muted)}
+label.step{display:block;font-size:13px;color:var(--muted);margin:20px 0 7px}
+label.step b{color:var(--text);font-weight:600}
+textarea{
+  width:100%;min-height:104px;background:#0c1219;color:#b9c9d9;border:1px solid var(--line);
+  border-radius:10px;padding:12px 13px;font-family:var(--mono);font-size:11.5px;line-height:1.5;
+  resize:vertical;word-break:break-all;
+}
+textarea:focus{outline:none;border-color:#33506f}
+.roles{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.role{
+  flex:1;min-width:200px;border:1px solid var(--line);border-radius:11px;padding:14px 16px;
+  background:var(--panel2);cursor:pointer;transition:border-color .15s,background .15s;
+}
+.role:hover{border-color:#3a4d63}
+.role.on{border-color:var(--blue);background:#16273a}
+.role .rt{font-weight:600;font-size:14px;margin-bottom:3px}
+.role .rd{font-size:12.5px;color:var(--muted);line-height:1.55}
+.log{
+  margin-top:16px;background:#0c1219;border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;font-family:var(--mono);font-size:11.5px;color:#8fa0b3;
+  max-height:150px;overflow:auto;white-space:pre-wrap;line-height:1.65;
+}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{font-size:12px;padding:5px 11px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);font-family:var(--mono)}
+.chip b{font-weight:600}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3c4a5a;margin-right:7px;vertical-align:1px}
+.dot.on{background:var(--green)}
+.dot.wait{background:var(--amber)}
+.dot.bad{background:var(--red)}
+hr.sep{border:0;border-top:1px solid var(--line);margin:22px 0}
+.note{font-size:12.5px;color:var(--muted);line-height:1.7}
+.note code{background:var(--panel2);padding:2px 6px;border-radius:5px;font-family:var(--mono);font-size:11.5px}
+.foot{color:#5a6b7d;font-size:12.5px;text-align:center;margin-top:34px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>跨境实时连接实测</h1>
+  <p class="sub">Cross-Border Realtime Connectivity Test · 用一个页面测出「中国 ↔ 海外」能否直接建立实时连接、走的是直连还是中继、真实延迟是多少。两个人各打开一次即可，不需要注册、不需要服务器。</p>
+
+  <div class="card">
+    <h2>第一步 · 网络环境自检</h2>
+    <p class="hint">先看看你的网络是从哪里接入 Cloudflare 全球网络的。这一项单独就能说明很多问题 —— 如果全程落在境外节点，国内用户的实时体验天花板就已经定了。</p>
+    <div class="row">
+      <button class="primary" id="btnNet">开始检测</button>
+      <button class="ghost" id="btnNetReset">重置</button>
+      <span id="netState" style="font-size:13px;color:var(--muted)"></span>
+    </div>
+    <div class="grid" id="netGrid" style="display:none">
+      <div class="metric"><div class="k">出口 IP</div><div class="v" id="mIp">—</div></div>
+      <div class="metric"><div class="k">IP 归属</div><div class="v" id="mLoc">—</div></div>
+      <div class="metric"><div class="k">运营商 / ASN</div><div class="v" id="mAsn">—</div></div>
+      <div class="metric"><div class="k">接入的 Cloudflare 节点</div><div class="v" id="mColo">—</div></div>
+      <div class="metric"><div class="k">到边缘节点往返延迟</div><div class="v" id="mPing">—</div></div>
+      <div class="metric"><div class="k">HTTP 协议</div><div class="v" id="mProto">—</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>第二步 · 跨国 P2P 连通性实测</h2>
+    <p class="hint">
+      这一步需要<b>两个人</b>：一个人在中国，一个人在海外（或任何不同网络环境）。两人各自打开本页，
+      其中一人选「发起方」，另一人选「应答方」，按下面的顺序把代码复制给对方。
+      不需要服务器，代码只是转达连接信息。
+    </p>
+
+    <div class="roles">
+      <div class="role" id="roleA"><div class="rt">我是发起方 (A)</div><div class="rd">你应该在中国这一侧。<br>先点下面生成代码，发给 B。</div></div>
+      <div class="role" id="roleB"><div class="rt">我是应答方 (B)</div><div class="rd">你应该在海外这一侧。<br>等 A 把代码发给你再开始。</div></div>
+    </div>
+
+    <div id="p2pBody" style="display:none">
+      <label class="step" id="lb1"></label>
+      <textarea id="ta1" placeholder=""></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="primary" id="btn1"></button>
+        <button class="ghost" id="btnCopy1" style="display:none">复制这段代码</button>
+      </div>
+
+      <label class="step" id="lb2" style="display:none"></label>
+      <textarea id="ta2" placeholder="" style="display:none"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="primary" id="btn2" style="display:none"></button>
+        <button class="ghost" id="btnCopy2" style="display:none">复制这段代码</button>
+      </div>
+
+      <hr class="sep">
+
+      <div class="row">
+        <span id="iceDot" class="dot"></span>
+        <span style="font-size:13.5px" id="iceText">等待开始</span>
+      </div>
+
+      <div class="verdict v-idle" id="verdict">
+        <div class="t">尚未建立连接</div>
+        <div class="d" id="verdictDesc">完成上面的代码交换后，这里会给出这次连接的真实结论。</div>
+      </div>
+
+      <div class="chips" id="candChips"></div>
+
+      <div class="grid" id="p2pGrid" style="display:none">
+        <div class="metric"><div class="k">本地候选类型</div><div class="v" id="mLocal">—</div></div>
+        <div class="metric"><div class="k">对端候选类型</div><div class="v" id="mRemote">—</div></div>
+        <div class="metric"><div class="k">传输路径</div><div class="v" id="mPath">—</div></div>
+        <div class="metric"><div class="k">ICE 往返延迟</div><div class="v" id="mRtt">—</div></div>
+        <div class="metric"><div class="k">实时 ping 延迟</div><div class="v" id="mPing2">—</div></div>
+      </div>
+
+      <div class="log" id="log">就绪。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>怎么读这个结果</h2>
+    <p class="note">
+      <b style="color:var(--green)">直连（host / srflx）</b> —— 两端直接互通，延迟最低，媒体不过服务器，成本近于 0。<br>
+      <b style="color:var(--amber)">中继（relay）</b> —— 两端打不通，媒体经 TURN 服务器转发。跨境场景下这是常态，
+      意味着<b>必须准备中继服务器</b>，并且带宽要按 <code>$0.05/GB</code> 量级计成本。<br><br>
+      另外看「接入的 Cloudflare 节点」：如果国内用户被分配到香港（<code>HKG</code>）、东京（<code>NRT</code>）、
+      新加坡（<code>SIN</code>）以外的远端节点，说明走的是海外回源，实时体验会明显变差。
+    </p>
+    <hr class="sep">
+    <p class="note">
+      注意：<code>relay</code> 出现红色报错，可能是页面内置的公共 TURN 服务不可用所致（公共 TURN 经常停服），
+      这<b>不代表你的网络无法中继</b>。要得到准确的商用结论，需要用正式 TURN 服务复测一次。
+    </p>
+  </div>
+
+  <p class="foot">
+    纯前端页面 · 不上传任何数据到服务器 · 代码仅在本机浏览器内计算<br>
+    用真实数据代替猜测 —— 先测，再决定怎么做。
+  </p>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  var ICE = {
+    iceServers: [
+      { urls: ['stun:stun.cloudflare.com:3478', 'stun:stun.l.google.com:19302', 'stun:stun.miwifi.com:3478'] },
+      { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
+    ],
+    iceCandidatePoolSize: 4
+  };
+
+  var COLO_NAME = {
+    HKG:'香港', NRT:'东京', KIX:'大阪', SIN:'新加坡', SEL:'首尔', ICN:'首尔',
+    TPE:'中国台北', LAX:'洛杉矶', SJC:'圣何塞', SEA:'西雅图', DFW:'达拉斯',
+    ORD:'芝加哥', IAD:'华盛顿', EWR:'纽瓦克', ATL:'亚特兰大', MIA:'迈阿密',
+    FRA:'法兰克福', AMS:'阿姆斯特丹', LHR:'伦敦', CDG:'巴黎', MAD:'马德里',
+    MXP:'米兰', WAW:'华沙', ARN:'斯德哥尔摩', SYD:'悉尼', MEL:'墨尔本',
+    BOM:'孟买', DEL:'德里', DXB:'迪拜', GRU:'圣保罗', JNB:'约翰内斯堡',
+    YYZ:'多伦多', URC:'乌鲁木齐', PEK:'北京', SHA:'上海', CAN:'广州', SZX:'深圳'
+  };
+
+  function log(msg){
+    var el = $('log');
+    var t = new Date().toTimeString().slice(0,8);
+    el.textContent += '\n[' + t + '] ' + msg;
+    el.scrollTop = el.scrollHeight;
+  }
+
+  /* ---------------- 第一步：网络自检 ---------------- */
+
+  $('btnNet').addEventListener('click', async function(){
+    var btn = this;
+    btn.disabled = true;
+    $('netState').textContent = '检测中…';
+    $('netGrid').style.display = 'grid';
+
+    var meta = null, bestPing = null, fail = 0;
+
+    for (var i = 0; i < 3; i++){
+      var t0 = performance.now();
+      try{
+        var r = await fetch('https://speed.cloudflare.com/meta?_=' + Date.now(), { cache:'no-store' });
+        var j = await r.json();
+        var dt = Math.round(performance.now() - t0);
+        if (bestPing === null || dt < bestPing) bestPing = dt;
+        meta = j;
+      }catch(e){
+        fail++;
+      }
+    }
+
+    if (!meta){
+      $('netState').textContent = '检测失败：无法访问 Cloudflare 测速接口（可能被网络环境拦截）';
+      $('netState').style.color = 'var(--red)';
+      btn.disabled = false;
+      return;
+    }
+
+    var colo = (meta.colo || '未知').toUpperCase();
+    var coloCN = COLO_NAME[colo] ? (COLO_NAME[colo] + '（' + colo + '）') : colo;
+
+    $('mIp').textContent    = meta.clientIp || '未知';
+    $('mLoc').textContent   = (meta.country || '?') + (meta.city ? ' · ' + meta.city : '');
+    $('mAsn').textContent   = (meta.asOrganization || '未知') + (meta.asn ? ' · AS' + meta.asn : '');
+    $('mColo').textContent  = coloCN;
+    $('mPing').textContent  = bestPing + ' ms';
+    $('mProto').textContent = (meta.httpProtocol || '—') + (fail ? '（' + fail + ' 次失败）' : '');
+
+    var cnColo = ['HKG','TPE','NRT','KIX','SIN','SEL','ICN'].indexOf(colo) !== -1;
+    $('mColo').style.color = cnColo ? 'var(--green)' : 'var(--amber)';
+    $('mPing').style.color = bestPing < 120 ? 'var(--green)' : (bestPing < 300 ? 'var(--amber)' : 'var(--red)');
+
+    $('netState').style.color = 'var(--muted)';
+    $('netState').textContent = cnColo
+      ? '接入节点在亚洲，地理上较近，实时业务有基础。'
+      : '接入节点在远端，实时音视频的延迟会明显偏高。';
+    btn.disabled = false;
+  });
+
+  $('btnNetReset').addEventListener('click', function(){
+    ['mIp','mLoc','mAsn','mColo','mPing','mProto'].forEach(function(id){
+      var el = $(id); el.textContent = '—'; el.style.color = '';
+    });
+    $('netGrid').style.display = 'none';
+    $('netState').textContent = '';
+  });
+
+  /* ---------------- 第二步：P2P 实测 ---------------- */
+
+  var role = null, pc = null, dc = null;
+  var candTally = {}, pingTimer = null, lastPing = null;
+
+  function pickRole(r){
+    role = r;
+    $('roleA').classList.toggle('on', r === 'A');
+    $('roleB').classList.toggle('on', r === 'B');
+    $('p2pBody').style.display = 'block';
+    $('log').textContent = '就绪。已选择角色：' + (r === 'A' ? '发起方 (A)' : '应答方 (B)');
+
+    if (r === 'A'){
+      $('lb1').innerHTML = '第 1 步 · <b>生成你的连接代码</b>，然后复制发给对方';
+      $('btn1').textContent = '生成连接代码';
+      $('btn1').style.display = '';
+      $('btn2').style.display = 'none';
+      $('lb2').style.display = 'none';
+      $('ta2').style.display = 'none';
+      $('btnCopy2').style.display = 'none';
+      $('ta1').value = '';
+      $('ta1').placeholder = '点击上面的按钮生成…';
+      $('btn1').onclick = stepA1;
+    } else {
+      $('lb1').innerHTML = '第 1 步 · 把 <b>对方（A）发来的代码</b>粘贴到这里，然后点下面的按钮';
+      $('ta1').placeholder = '在这里粘贴对方发来的代码…';
+      $('btn1').textContent = '生成我的回信代码';
+      $('btn1').style.display = '';
+      $('btn1').onclick = stepB1;
+      $('btn2').style.display = 'none';
+      $('lb2').style.display = 'none';
+      $('ta2').style.display = 'none';
+      $('btnCopy2').style.display = 'none';
+    }
+  }
+
+  $('roleA').addEventListener('click', function(){ pickRole('A'); });
+  $('roleB').addEventListener('click', function(){ pickRole('B'); });
+
+  function setIce(state, cls){
+    $('iceDot').className = 'dot ' + (cls || '');
+    $('iceText').textContent = state;
+  }
+
+  function tallyCandidate(c){
+    var t = c.type || (c.candidate.indexOf('typ relay') > -1 ? 'relay'
+            : c.candidate.indexOf('typ srflx') > -1 ? 'srflx'
+            : c.candidate.indexOf('typ prflx') > -1 ? 'prflx'
+            : c.candidate.indexOf('typ host') > -1 ? 'host' : 'other');
+    candTally[t] = (candTally[t] || 0) + 1;
+    renderChips();
+  }
+
+  function renderChips(){
+    var html = '';
+    var label = { host:'本机地址 host', srflx:'NAT 穿透 srflx', prflx:'对端反查 prflx', relay:'中继 relay', other:'其他' };
+    Object.keys(candTally).forEach(function(k){
+      var isRelay = (k === 'relay');
+      html += '<span class="chip" style="' + (isRelay ? 'color:var(--amber);border-color:rgba(210,153,34,.4)' : '') + '">'
+            + (label[k] || k) + ' <b>' + candTally[k] + '</b></span>';
+    });
+    $('candChips').innerHTML = html;
+  }
+
+  function newPC(){
+    candTally = {};
+    renderChips();
+    pc = new RTCPeerConnection(ICE);
+
+    pc.onicecandidate = function(e){
+      if (e.candidate) tallyCandidate(e.candidate);
+    };
+
+    pc.oniceconnectionstatechange = function(){
+      var s = pc.iceConnectionState;
+      if (s === 'checking'){ setIce('正在打洞 / ICE checking…', 'wait'); log('ICE 开始连通性检查'); }
+      else if (s === 'connected' || s === 'completed'){ setIce('已连通 / connected', 'on'); log('ICE 已连通：' + s); collect(); }
+      else if (s === 'disconnected'){ setIce('连接中断 / disconnected', 'wait'); log('连接中断'); }
+      else if (s === 'failed'){ setIce('打洞失败 / failed', 'bad'); log('ICE 失败 —— 两端无法建立直连，需要中继'); verdict('failed'); }
+    };
+
+    pc.ondatachannel = function(e){ bindDC(e.channel); };
+  }
+
+  function bindDC(channel){
+    dc = channel;
+    dc.onopen = function(){
+      log('数据通道已打开 —— 两端可互通');
+      var st = pc.iceConnectionState;
+      setIce('已连通，数据通道打开', 'on');
+      pingTimer = setInterval(function(){
+        if (dc.readyState === 'open'){ lastPing = Date.now(); dc.send('ping:' + lastPing); }
+      }, 1000);
+    };
+    dc.onmessage = function(e){
+      var s = String(e.data);
+      if (s.indexOf('ping:') === 0){
+        if (dc.readyState === 'open') dc.send('pong:' + s.slice(5));
+      } else if (s.indexOf('pong:') === 0){
+        var rtt = Date.now() - Number(s.slice(5));
+        $('mPing2').textContent = rtt + ' ms';
+        $('mPing2').style.color = rtt < 150 ? 'var(--green)' : (rtt < 350 ? 'var(--amber)' : 'var(--red)');
+      }
+    };
+    dc.onerror = function(){ log('数据通道错误'); };
+  }
+
+  function iceDone(p){
+    return new Promise(function(res){
+      if (p.iceGatheringState === 'complete') return res();
+      var done = false;
+      var finish = function(){ if (!done){ done = true; res(); } };
+      p.addEventListener('icegatheringstatechange', function(){
+        if (p.iceGatheringState === 'complete') finish();
+      });
+      setTimeout(finish, 6000);
+    });
+  }
+
+  function enc(o){ return btoa(JSON.stringify(o)); }
+  function dec(s){
+    s = (s || '').trim().replace(/\s+/g, '');
+    return JSON.parse(atob(s));
+  }
+
+  async function stepA1(){
+    var btn = $('btn1');
+    btn.disabled = true; btn.textContent = '正在收集候选地址…';
+    try{
+      newPC();
+      dc = pc.createDataChannel('test');
+      bindDC(dc);
+      var offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      await iceDone(pc);
+      $('ta1').value = enc(pc.localDescription);
+      $('btnCopy1').style.display = '';
+      btn.textContent = '重新生成';
+      btn.disabled = false;
+      $('lb2').style.display = 'block';
+      $('lb2').innerHTML = '第 2 步 · 等对方回信后，把 <b>对方的代码</b>粘贴到这里，再点下面的按钮完成连接';
+      $('ta2').style.display = 'block';
+      $('ta2').placeholder = '在这里粘贴对方（B）发来的代码…';
+      $('btn2').style.display = '';
+      $('btn2').textContent = '完成连接';
+      $('btn2').onclick = stepA2;
+      log('已生成发起方代码，共 ' + Object.keys(candTally).length + ' 类候选地址');
+      setIce('等待对方回信…', 'wait');
+    }catch(e){
+      log('生成失败：' + e.message);
+      btn.disabled = false; btn.textContent = '重试';
+    }
+  }
+
+  async function stepA2(){
+    var btn = $('btn2');
+    btn.disabled = true;
+    try{
+      await pc.setRemoteDescription(dec($('ta2').value));
+      log('已接受对方应答，开始打洞');
+      setIce('正在打洞…', 'wait');
+      setTimeout(collect, 4000);
+    }catch(e){
+      log('代码无效或已过期：' + e.message);
+      btn.disabled = false;
+    }
+  }
+
+  async function stepB1(){
+    var btn = $('btn1');
+    btn.disabled = true; btn.textContent = '正在生成回信…';
+    try{
+      newPC();
+      await pc.setRemoteDescription(dec($('ta1').value));
+      var answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      await iceDone(pc);
+      $('ta2').value = enc(pc.localDescription);
+      $('lb2').style.display = 'block';
+      $('lb2').innerHTML = '第 2 步 · 把下面这段代码 <b>复制回给 A</b>，连接就会自动建立';
+      $('ta2').style.display = 'block';
+      $('btnCopy2').style.display = '';
+      $('btn1').textContent = '重新生成回信';
+      btn.disabled = false;
+      log('已生成应答代码，请复制回给对方');
+      setIce('等待对方接入…', 'wait');
+    }catch(e){
+      log('代码无效或已过期：' + e.message);
+      btn.disabled = false; btn.textContent = '重试';
+    }
+  }
+
+  async function collect(){
+    if (!pc) return;
+    try{
+      var stats = await pc.getStats();
+      var pairs = {}, locals = {}, remotes = {}, selected = null;
+
+      stats.forEach(function(r){
+        if (r.type === 'candidate-pair') pairs[r.id] = r;
+        if (r.type === 'local-candidate') locals[r.id] = r;
+        if (r.type === 'remote-candidate') remotes[r.id] = r;
+      });
+
+      stats.forEach(function(r){
+        if (r.type === 'transport' && r.selectedCandidatePairId) selected = pairs[r.selectedCandidatePairId];
+      });
+      if (!selected){
+        Object.keys(pairs).forEach(function(id){
+          var p = pairs[id];
+          if ((p.state === 'succeeded' || p.nominated) && !selected) selected = p;
+        });
+      }
+
+      if (!selected){ setTimeout(collect, 2000); return; }
+
+      var lc = locals[selected.localCandidateId] || {};
+      var rc = remotes[selected.remoteCandidateId] || {};
+      var lt = lc.candidateType || '未知';
+      var rt = rc.candidateType || '未知';
+
+      $('p2pGrid').style.display = 'grid';
+      $('mLocal').textContent  = lt;
+      $('mRemote').textContent = rt;
+
+      var isRelay = (lt === 'relay' || rt === 'relay');
+      $('mPath').textContent = isRelay ? '中继（TURN）' : 'P2P 直连';
+      $('mPath').style.color = isRelay ? 'var(--amber)' : 'var(--green)';
+
+      if (typeof selected.currentRoundTripTime === 'number'){
+        var ms = Math.round(selected.currentRoundTripTime * 1000);
+        $('mRtt').textContent = ms + ' ms';
+        $('mRtt').style.color = ms < 150 ? 'var(--green)' : (ms < 350 ? 'var(--amber)' : 'var(--red)');
+      }
+
+      log('选中候选对：本地 ' + lt + ' ↔ 对端 ' + rt);
+      verdict(isRelay ? 'relay' : 'direct', lt, rt, selected.currentRoundTripTime);
+    }catch(e){
+      log('读取统计失败：' + e.message);
+    }
+  }
+
+  function verdict(kind, lt, rt, rtt){
+    var v = $('verdict');
+    var desc = $('verdictDesc');
+
+    if (kind === 'failed'){
+      v.className = 'verdict v-err';
+      v.querySelector('.t').textContent = '打洞失败 —— 两端无法建立直连';
+      desc.textContent = '这说明在这种网络组合下，媒体必须经过服务器中转（TURN）。跨境场景里这是很常见的结果，'
+                       + '意味着产品必须有中继兜底，并且要按带宽计成本。';
+      return;
+    }
+
+    if (kind === 'relay'){
+      v.className = 'verdict v-warn';
+      v.querySelector('.t').textContent = '本次走了中继（TURN）';
+      desc.textContent = '两端直连未成功，媒体经中继服务器转发，路径为 ' + lt + ' ↔ ' + rt + '。'
+                       + '跨境场景中这是常态。中继会增加延迟，带宽按 $0.05/GB 量级计费（前 1000GB 免费）。';
+      return;
+    }
+
+    v.className = 'verdict v-ok';
+    v.querySelector('.t').textContent = 'P2P 直连成功';
+    desc.textContent = '两端通过 ' + lt + ' ↔ ' + rt + ' 直接互通，媒体不过服务器'
+                     + (rtt ? '，ICE 往返 ' + Math.round(rtt * 1000) + ' ms' : '')
+                     + '。这是最理想的结果：延迟最低、带宽成本近于零。';
+  }
+
+  function copyFrom(id, btn){
+    var ta = $(id);
+    if (!ta.value){ return; }
+    ta.select();
+    var done = function(){
+      var old = btn.textContent;
+      btn.textContent = '已复制';
+      setTimeout(function(){ btn.textContent = old; }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(ta.value).then(done, function(){
+        try{ document.execCommand('copy'); done(); }catch(e){}
+      });
+    } else {
+      try{ document.execCommand('copy'); done(); }catch(e){}
+    }
+  }
+
+  $('btnCopy1').addEventListener('click', function(){ copyFrom('ta1', this); });
+  $('btnCopy2').addEventListener('click', function(){ copyFrom('ta2', this); });
+
+})();
+</script>
+</body>
+</html>
