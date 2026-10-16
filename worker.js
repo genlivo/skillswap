@@ -82,8 +82,10 @@ const LANDING_HTML = `<!doctype html>
     <p class="lead en">Two phases: <b>Phase 1 · Recruitment (now → 2027-01-15)</b> — recruit 18 core members, founder not counted; <b>Phase 2 · Execution (2027-01-15 launch → ~2027-04-25)</b> — go live & public launch. The 100 days count only from launch; recruitment is separate.</p>
     <ul class="terms">
       <li><span class="k zh">人数</span><span class="k en">Size</span><span class="zh">面向外部招募 18 名骨干，不含发起人本人。</span><span class="en">18 external core members, founder not counted.</span></li>
+      <li><span class="k zh">发起人</span><span class="k en">Founder</span><span class="zh">老K（Kai）——“K”取自本名“凯”，也像一把打开世界的“Key（钥匙）”。</span><span class="en">Founder: Lao K (Kai) — “K” for Kai, and for the “Key” to the world.</span></li>
       <li><span class="k zh">地点</span><span class="k en">Where</span><span class="zh">可来中国 · 山西 · 晋中 · 左权县驻地，与发起人当面共谋。</span><span class="en">Come to the founder's base in Zuoquan County, Shanxi, China.</span></li>
       <li><span class="k zh">路费</span><span class="k en">Travel</span><span class="zh">往返交通、签证及途中一切费用，全部本人自理。</span><span class="en">All travel, visa and transit costs are self-paid.</span></li>
+      <li><span class="k zh">吃住</span><span class="k en">Board</span><span class="zh">凡抵达驻地的骨干，由发起人老K 负责安排一个月的免费食宿（吃住）。</span><span class="en">Founder Lao K provides one month of free food & lodging for members who arrive.</span></li>
       <li><span class="k zh">考察</span><span class="k en">Eval</span><span class="zh">抵达后先考察一段时间，再定是否纳入合伙人及待遇。</span><span class="en">After arrival, a trial period decides partnership & benefits.</span></li>
       <li><span class="k zh">招募期</span><span class="k en">Phase 1</span><span class="zh">即日 → 2027-01-15，约 91 天。此阶段只招募，不计入 100 天。</span><span class="en">Now → 2027-01-15 (~91 days). Recruiting only; not part of the 100 days.</span></li>
       <li><span class="k zh">执行期</span><span class="k en">Phase 2</span><span class="zh">2027-01-15 正式启动 → 约 2027-04-25，全程 100 天：落成上市。</span><span class="en">2027-01-15 launch → ~2027-04-25: 100 days to public launch.</span></li>
