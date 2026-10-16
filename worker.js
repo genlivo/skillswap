@@ -78,14 +78,15 @@ const LANDING_HTML = `<!doctype html>
   <section class="recruit">
     <h2 class="zh">全球招募 · 18 名骨干（不含发起人）</h2>
     <h2 class="en">Global call · 18 core members (excluding founder)</h2>
-    <p class="lead zh">项目 2027-01-15 正式启动，以 SkillSwap 为核心延伸分支、走向真正商业化。我们找一支正式的团队，不是围观者。</p>
-    <p class="lead en">Launches 2027-01-15. Build a real commercial team around SkillSwap and its spin-offs — not bystanders.</p>
+    <p class="lead zh">项目分两个阶段：<b>阶段一·招募期（即日起 → 2027-01-15）</b>，全球招募 18 名骨干、不含发起人；<b>阶段二·执行期（2027-01-15 正式启动 → 约 2027-04-25）</b>，正式运转、落成上市。100 天只算执行期，招募阶段不在内。</p>
+    <p class="lead en">Two phases: <b>Phase 1 · Recruitment (now → 2027-01-15)</b> — recruit 18 core members, founder not counted; <b>Phase 2 · Execution (2027-01-15 launch → ~2027-04-25)</b> — go live & public launch. The 100 days count only from launch; recruitment is separate.</p>
     <ul class="terms">
       <li><span class="k zh">人数</span><span class="k en">Size</span><span class="zh">面向外部招募 18 名骨干，不含发起人本人。</span><span class="en">18 external core members, founder not counted.</span></li>
       <li><span class="k zh">地点</span><span class="k en">Where</span><span class="zh">可来中国 · 山西 · 晋中 · 左权县驻地，与发起人当面共谋。</span><span class="en">Come to the founder's base in Zuoquan County, Shanxi, China.</span></li>
       <li><span class="k zh">路费</span><span class="k en">Travel</span><span class="zh">往返交通、签证及途中一切费用，全部本人自理。</span><span class="en">All travel, visa and transit costs are self-paid.</span></li>
       <li><span class="k zh">考察</span><span class="k en">Eval</span><span class="zh">抵达后先考察一段时间，再定是否纳入合伙人及待遇。</span><span class="en">After arrival, a trial period decides partnership & benefits.</span></li>
-      <li><span class="k zh">周期</span><span class="k en">Timeline</span><span class="zh">自正式启动到落成上市，全程 100 天（约 2027-04-25）。</span><span class="en">100 days from launch to public launch (~2027-04-25).</span></li>
+      <li><span class="k zh">招募期</span><span class="k en">Phase 1</span><span class="zh">即日 → 2027-01-15，约 91 天。此阶段只招募，不计入 100 天。</span><span class="en">Now → 2027-01-15 (~91 days). Recruiting only; not part of the 100 days.</span></li>
+      <li><span class="k zh">执行期</span><span class="k en">Phase 2</span><span class="zh">2027-01-15 正式启动 → 约 2027-04-25，全程 100 天：落成上市。</span><span class="en">2027-01-15 launch → ~2027-04-25: 100 days to public launch.</span></li>
     </ul>
     <a class="cta zh" href="mailto:contribute@agentqev.uk?subject=%E9%AA%A8%E5%B9%B2%E5%85%A5%E4%BC%99&body=%E5%A7%94%E7%BA%B3%E4%BA%BA%E5%A5%BD%EF%BC%8C%E6%88%91%E6%84%8F%E5%90%91%E6%88%90%E4%B8%BA%E9%AA%A8%E5%B9%B2%EF%BC%9A%0A1.%20%E5%8F%AF%E5%88%B0%E9%A9%BB%E5%9C%B0%E6%97%B6%E9%97%B4%EF%BC%9A%0A2.%20%E6%89%BF%E6%8B%85%E8%A7%92%E8%89%B2%EF%BC%9A%0A3.%20%E6%9C%9F%E6%9C%9B%E8%A7%92%E8%89%B2%EF%BC%9A">申请成为骨干 →</a>
     <a class="cta en" href="mailto:contribute@agentqev.uk?subject=Core%20Member&body=Hi%2C%20I%20want%20to%20join%20as%20a%20core%20member%3A%0A1.%20Arrival%20window%3A%0A2.%20Role%20I%20can%20take%3A%0A3.%20Skills%3A">Apply as core member →</a>
