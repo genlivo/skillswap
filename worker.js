@@ -92,6 +92,14 @@ const LANDING_HTML = `<!doctype html>
     <a class="cta en" href="mailto:contribute@agentqev.uk?subject=Core%20Member&body=Hi%2C%20I%20want%20to%20join%20as%20a%20core%20member%3A%0A1.%20Arrival%20window%3A%0A2.%20Role%20I%20can%20take%3A%0A3.%20Skills%3A">Apply as core member →</a>
   </section>
 
+  <section class="card" style="margin-top:28px">
+    <h2 class="zh">🤝 姊妹站 · 左权本地社区</h2><h2 class="en">🤝 Sister site · Zuoquan local</h2>
+    <p class="hint zh">同一团队在左权本地做的站：免注册广场发内容、本地 AI 接单、左权 QQ 群。全球技能交换，也扎根家乡。</p>
+    <p class="hint en">Our local hub in Zuoquan County: no-signup town square, local AI gigs, Zuoquan QQ group.</p>
+    <a class="cta zh" href="https://zuoquan.uk/" target="_blank" rel="noopener">逛逛 zuoquan.uk →</a>
+    <a class="cta en" href="https://zuoquan.uk/" target="_blank" rel="noopener">Visit zuoquan.uk →</a>
+  </section>
+
   <section class="pillars">
     <div class="pillar">
       <h3 class="zh">🗣️ 语言交换</h3><h3 class="en">🗣️ Language</h3>
