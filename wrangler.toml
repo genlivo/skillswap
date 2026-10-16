@@ -1,0 +1,19 @@
+name = "skillswap-landing"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+account_id = "562121f09d1d01a988e40d7cb7d75ae7"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "skillswap"
+database_id = "597f92dc-88a9-4847-814b-1f696c0cdae3"
+
+# ── 管理后台密钥（ADMIN_KEY）──────────────────────────────
+# 切勿把明文密钥提交到公开仓库！
+# 部署前用 secret 注入（写入 Worker 运行环境的 env.ADMIN_KEY）：
+#     wrangler secret put ADMIN_KEY
+# 本地开发可在项目根新建 .dev.vars 写入：ADMIN_KEY=你的密钥
+# 代码中通过 env.ADMIN_KEY 读取，secret 与 vars 都会进入 env。
+routes = [
+  { pattern = "agentqev.uk/*", zone_name = "agentqev.uk" }
+]
